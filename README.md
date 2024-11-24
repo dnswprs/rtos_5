@@ -1,4 +1,4 @@
-# Program Kontrol LED dengan FreeRTOS
+# Percobaan Demonstrasi Resource Contention RTOS
 
 ## Tentang Proyek
 Program ini menjalankan tiga task yang berbeda dalam sistem operasi FreeRTOS. Task pertama adalah DefaultTask yang berfungsi sebagai task idle system. Dua task utama lainnya, GreenLedTask dan RedLedTask, beroperasi secara bersamaan untuk mengakses shared resource dan menunjukkan aktivitasnya melalui LED.
