@@ -57,14 +57,14 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define RED_LED_Pin GPIO_PIN_9
-#define RED_LED_GPIO_Port GPIOE
-#define GREEN_LED_Pin GPIO_PIN_10
-#define GREEN_LED_GPIO_Port GPIOE
-#define BLUE_LED_Pin GPIO_PIN_11
-#define BLUE_LED_GPIO_Port GPIOE
-#define ORANGE_LED_Pin GPIO_PIN_12
+#define ORANGE_LED_Pin GPIO_PIN_13
 #define ORANGE_LED_GPIO_Port GPIOE
+#define BLUE_LED_Pin GPIO_PIN_15
+#define BLUE_LED_GPIO_Port GPIOE
+#define GREEN_LED_Pin GPIO_PIN_11
+#define GREEN_LED_GPIO_Port GPIOB
+#define RED_LED_Pin GPIO_PIN_13
+#define RED_LED_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

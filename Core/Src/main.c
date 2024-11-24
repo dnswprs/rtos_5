@@ -32,7 +32,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+static volatile uint8_t startFlag = 1;  // 1 = Up, 0 = Down
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -112,6 +112,10 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
+  HAL_GPIO_WritePin(ORANGE_LED_GPIO_Port, ORANGE_LED_Pin, 1);
+  HAL_GPIO_WritePin(RED_LED_GPIO_Port, RED_LED_Pin, 1);
+  HAL_GPIO_WritePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin, 1);
+  HAL_GPIO_WritePin(BLUE_LED_GPIO_Port, BLUE_LED_Pin, 1);
 
   /* USER CODE END 2 */
 
@@ -227,24 +231,51 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOE_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, RED_LED_Pin|GREEN_LED_Pin|BLUE_LED_Pin|ORANGE_LED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOE, ORANGE_LED_Pin|BLUE_LED_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : RED_LED_Pin GREEN_LED_Pin BLUE_LED_Pin ORANGE_LED_Pin */
-  GPIO_InitStruct.Pin = RED_LED_Pin|GREEN_LED_Pin|BLUE_LED_Pin|ORANGE_LED_Pin;
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GREEN_LED_Pin|RED_LED_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : ORANGE_LED_Pin BLUE_LED_Pin */
+  GPIO_InitStruct.Pin = ORANGE_LED_Pin|BLUE_LED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : GREEN_LED_Pin RED_LED_Pin */
+  GPIO_InitStruct.Pin = GREEN_LED_Pin|RED_LED_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
-
+void AccessSharedData(void)
+{
+    if (startFlag == 1) {
+        HAL_GPIO_WritePin(BLUE_LED_GPIO_Port, BLUE_LED_Pin, GPIO_PIN_SET);
+        /* Resource is available */
+        startFlag = 0;  // Set flag Down
+        
+        /* Simulate read/write operations */
+        osDelay(500);  // 500ms delay for operations
+        
+        /* Release resource */
+        startFlag = 1;  // Set flag Up
+    } else if (startFlag == 0){
+        /* Resource contention detected - turn on Blue LED */
+        HAL_GPIO_WritePin(BLUE_LED_GPIO_Port, BLUE_LED_Pin, GPIO_PIN_RESET);
+    }
+}
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -275,23 +306,19 @@ void StartDefaultTask(void *argument)
 void FlashGreenLedTask(void *argument)
 {
   /* USER CODE BEGIN FlashGreenLedTask */
+//	osDelay(osWaitForever);
   /* Infinite loop */
   for(;;)
   {
-      HAL_GPIO_WritePin(BLUE_LED_GPIO_Port, BLUE_LED_Pin, GPIO_PIN_RESET);    // Blue LED on (active low)
+    HAL_GPIO_WritePin(RED_LED_GPIO_Port, RED_LED_Pin, GPIO_PIN_RESET);
 
-      // Toggle Green LED for 4 seconds at 20Hz
-      uint32_t startTime = HAL_GetTick();
-      while((HAL_GetTick() - startTime) < 4000)
-      {
-          HAL_GPIO_TogglePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin);
-          osDelay(50);    // 20Hz = 50ms period
-      }
-
-      HAL_GPIO_WritePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin, GPIO_PIN_SET);    // Green LED off (active low)
-      HAL_GPIO_WritePin(BLUE_LED_GPIO_Port, BLUE_LED_Pin, GPIO_PIN_SET);      // Blue LED off (active low)
-
-      osDelay(6000);    // Suspend for 6 seconds
+    /* Access shared data */
+    AccessSharedData();
+    /* Turn Red LED off */
+    HAL_GPIO_WritePin(RED_LED_GPIO_Port, RED_LED_Pin, GPIO_PIN_SET);
+    
+    /* Delay for 100ms */
+    osDelay(100);
   }
   /* USER CODE END FlashGreenLedTask */
 }
@@ -306,23 +333,18 @@ void FlashGreenLedTask(void *argument)
 void FlashRedLedTask(void *argument)
 {
   /* USER CODE BEGIN FlashRedLedTask */
+//	osDelay(osWaitForever);
   /* Infinite loop */
   for(;;)
   {
-      HAL_GPIO_WritePin(ORANGE_LED_GPIO_Port, ORANGE_LED_Pin, GPIO_PIN_RESET); // Orange LED on (active low)
-
-      // Toggle Red LED for 0.5 seconds at 20Hz
-      uint32_t startTime = HAL_GetTick();
-      while((HAL_GetTick() - startTime) < 500)
-      {
-          HAL_GPIO_TogglePin(RED_LED_GPIO_Port, RED_LED_Pin);
-          osDelay(50);    // 20Hz = 50ms period
-      }
-
-      HAL_GPIO_WritePin(RED_LED_GPIO_Port, RED_LED_Pin, GPIO_PIN_SET);       // Red LED off (active low)
-      HAL_GPIO_WritePin(ORANGE_LED_GPIO_Port, ORANGE_LED_Pin, GPIO_PIN_SET);  // Orange LED off (active low)
-
-      osDelay(1500);    // Suspend for 1.5 seconds
+    HAL_GPIO_WritePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin, GPIO_PIN_RESET);
+    /* Access shared data */
+    AccessSharedData();
+    /* Turn Green LED off */
+    HAL_GPIO_WritePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin, GPIO_PIN_SET);
+    
+    /* Delay for 500ms */
+    osDelay(500);
   }
   /* USER CODE END FlashRedLedTask */
 }
