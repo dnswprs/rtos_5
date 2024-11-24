@@ -50,6 +50,9 @@ Program menggunakan konfigurasi GPIO berikut:
 - GPIOE: LED Oranye dan Biru
 - GPIOB: LED Hijau dan Merah
 
+# Video Percobaan
+![ezgif-4-3ba6ee1d55](https://github.com/user-attachments/assets/c6e808bb-e2bd-4fc5-953e-7539ac33e65f)
+
 ## Analisa 
-Program ini mendemonstrasikan masalah klasik dalam sistem multi-tasking yaitu resource contention, di mana dua task (GreenLedTask dan RedLedTask) berkompetisi untuk mengakses shared resource yang sama. Implementasi program menggunakan mekanisme flag sederhana (startFlag) untuk mengontrol akses, yang meskipun berfungsi sebagai demonstrasi, tidak sepenuhnya aman untuk sistem real-time karena berpotensi mengalami race condition. 
+Dari video diatas, dapat dilihat bahwa led biru berkedip beberapa kali. Hal ini disebabkan karena dalam program ini mendemonstrasikan masalah dalam sistem multi-tasking yaitu resource contention, di mana dua task (GreenLedTask dan RedLedTask) berkompetisi untuk mengakses shared resource yang sama. Implementasi program menggunakan mekanisme flag sederhana (startFlag) yang tidak sepenuhnya aman untuk sistem real-time karena berpotensi mengalami race condition. 
 Program menggunakan LED Biru sebagai indikator visual untuk mendeteksi resource contention, yang terjadi ketika satu task mencoba mengakses resource sementara task lain sedang menggunakannya. Perbedaan timing antara kedua task (100ms vs 500ms) dan penggunaan global variable tanpa proper mutex atau semaphore menciptakan kondisi yang ideal untuk terjadinya simultaneous access.
